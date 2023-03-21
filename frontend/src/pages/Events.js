@@ -1,25 +1,33 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
 
-const EVENTS = [
-  { id: 'e1', name: 'Event1' },
-  { id: 'e2', name: 'Event2' },
-  { id: 'e3', name: 'Event3' },
-];
+function EventsPage() {
+  const data = useLoaderData();
+  const events = data.events;
 
-const Events = () => {
+  // if (data.isError) {
+  //   return <p>{data.message}</p>;
+  // }
+
   return (
     <>
-      <h1>Events</h1>
-      <ul>
-        {EVENTS.map((event) => (
-          <li key={event.id}>
-            <Link to={event.id}>{event.name}</Link>
-          </li>
-        ))}
-      </ul>
+      <EventsList events={events} />
     </>
   );
-};
+}
 
-export default Events;
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/events');
+
+  if (!response.ok) {
+    // return { isError: true, message: 'Could not fetch events' };
+    throw new Response(JSON.stringify({ message: 'Could not fetch events' }), {
+      status: 500,
+    });
+    // when error thrown ? React renders 'closest error element' => here: root route ('bubbles up')
+  } else {
+    return response;
+  }
+}
